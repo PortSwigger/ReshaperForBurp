@@ -14,6 +14,8 @@ import synfron.reshaper.burp.core.rules.RuleResponse;
 import synfron.reshaper.burp.core.rules.SetItemPlacement;
 import synfron.reshaper.burp.core.rules.thens.Then;
 import synfron.reshaper.burp.core.rules.thens.ThenType;
+import synfron.reshaper.burp.core.settings.Workspace;
+import synfron.reshaper.burp.core.settings.Workspaces;
 import synfron.reshaper.burp.core.utils.Serializer;
 import synfron.reshaper.burp.core.utils.TextUtils;
 import synfron.reshaper.burp.core.vars.*;
@@ -30,27 +32,28 @@ public class ReshaperObj {
     public static class VariablesObj {
 
         public String getGlobalVariable(String name) {
-            return getVariable(GlobalVariables.get(), name);
+            return getVariable(Dispatcher.getCurrent().getEventInfo().getWorkspace().getGlobalVariables(), name);
         }
 
         public String getEventVariable(String name) {
-            return getVariable(((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getVariables(), name);
+            return getVariable(Dispatcher.getCurrent().getEventInfo().getVariables(), name);
         }
 
         public String getSessionVariable(String name) {
-            return getVariable(((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getSessionVariables(), name);
+            return getVariable(Dispatcher.getCurrent().getEventInfo().getSessionVariables(), name);
         }
 
         public String[] getGlobalListVariable(String name) {
-            return getListVariable(GlobalVariables.get(), name);
+            Workspace workspace = Dispatcher.getCurrent().getEventInfo().getWorkspace();
+            return getListVariable(workspace.getGlobalVariables(), name);
         }
 
         public String[] getEventListVariable(String name) {
-            return getListVariable(((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getVariables(), name);
+            return getListVariable(Dispatcher.getCurrent().getEventInfo().getVariables(), name);
         }
 
         public String[] getSessionListVariable(String name) {
-            return getListVariable(((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getSessionVariables(), name);
+            return getListVariable(Dispatcher.getCurrent().getEventInfo().getSessionVariables(), name);
         }
 
         private String getVariable(Variables variables, String name) {
@@ -77,28 +80,28 @@ public class ReshaperObj {
             if (!VariableString.isValidVariableName(name)) {
                 throw new IllegalArgumentException(String.format("Invalid variable name '%s'", name));
             }
-            GlobalVariables.get().add(Variables.asKey(name, false)).setValue(value);
+            Dispatcher.getCurrent().getEventInfo().getWorkspace().getGlobalVariables().add(Variables.asKey(name, false)).setValue(value);
         }
 
         public void setEventVariable(String name, String value) {
             if (!VariableString.isValidVariableName(name)) {
                 throw new IllegalArgumentException(String.format("Invalid variable name '%s'", name));
             }
-            ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getVariables().add(Variables.asKey(name, false)).setValue(value);
+            Dispatcher.getCurrent().getEventInfo().getVariables().add(Variables.asKey(name, false)).setValue(value);
         }
 
         public void setSessionVariable(String name, String value) {
             if (!VariableString.isValidVariableName(name)) {
                 throw new IllegalArgumentException(String.format("Invalid variable name '%s'", name));
             }
-            ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getSessionVariables().add(Variables.asKey(name, false)).setValue(value);
+            Dispatcher.getCurrent().getEventInfo().getSessionVariables().add(Variables.asKey(name, false)).setValue(value);
         }
 
         public void setGlobalListVariable(String name, Object[] values, String delimiter) {
             if (!VariableString.isValidVariableName(name)) {
                 throw new IllegalArgumentException(String.format("Invalid variable name '%s'", name));
             }
-            ListVariable variable = (ListVariable) GlobalVariables.get().add(Variables.asKey(name, true));
+            ListVariable variable = (ListVariable) Dispatcher.getCurrent().getEventInfo().getWorkspace().getGlobalVariables().add(Variables.asKey(name, true));
             variable.setValues(values, delimiter, SetListItemsPlacement.Overwrite);
         }
 
@@ -106,7 +109,7 @@ public class ReshaperObj {
             if (!VariableString.isValidVariableName(name)) {
                 throw new IllegalArgumentException(String.format("Invalid variable name '%s'", name));
             }
-            ListVariable variable = (ListVariable) ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getVariables().add(Variables.asKey(name, true));
+            ListVariable variable = (ListVariable) Dispatcher.getCurrent().getEventInfo().getVariables().add(Variables.asKey(name, true));
             variable.setValues(values, delimiter, SetListItemsPlacement.Overwrite);
         }
 
@@ -114,32 +117,32 @@ public class ReshaperObj {
             if (!VariableString.isValidVariableName(name)) {
                 throw new IllegalArgumentException(String.format("Invalid variable name '%s'", name));
             }
-            ListVariable variable = (ListVariable) ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getSessionVariables().add(Variables.asKey(name, true));
+            ListVariable variable = (ListVariable) Dispatcher.getCurrent().getEventInfo().getSessionVariables().add(Variables.asKey(name, true));
             variable.setValues(values, delimiter, SetListItemsPlacement.Overwrite);
         }
 
         public void deleteGlobalVariable(String name) {
-            GlobalVariables.get().remove(Variables.asKey(name, false));
+            Dispatcher.getCurrent().getEventInfo().getWorkspace().getGlobalVariables().remove(Variables.asKey(name, false));
         }
 
         public void deleteEventVariable(String name) {
-            ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getVariables().remove(Variables.asKey(name, false));
+            Dispatcher.getCurrent().getEventInfo().getVariables().remove(Variables.asKey(name, false));
         }
 
         public void deleteSessionVariable(String name) {
-            ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getSessionVariables().remove(Variables.asKey(name, false));
+            Dispatcher.getCurrent().getEventInfo().getSessionVariables().remove(Variables.asKey(name, false));
         }
 
         public void deleteGlobalListVariable(String name) {
-            GlobalVariables.get().remove(Variables.asKey(name, true));
+            Dispatcher.getCurrent().getEventInfo().getWorkspace().getGlobalVariables().remove(Variables.asKey(name, true));
         }
 
         public void deleteEventListVariable(String name) {
-            ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getVariables().remove(Variables.asKey(name, true));
+            Dispatcher.getCurrent().getEventInfo().getVariables().remove(Variables.asKey(name, true));
         }
 
         public void deleteSessionListVariable(String name) {
-            ((EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo")).getSessionVariables().remove(Variables.asKey(name, true));
+            Dispatcher.getCurrent().getEventInfo().getSessionVariables().remove(Variables.asKey(name, true));
         }
     }
 
@@ -154,8 +157,8 @@ public class ReshaperObj {
         }
 
         public String getMessageValue(String key, String identifier) {
+            EventInfo eventInfo = Dispatcher.getCurrent().getEventInfo();
             MessageValue messageValue = EnumUtils.getEnumIgnoreCase(MessageValue.class, key);
-            EventInfo eventInfo = (EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo");
             if (messageValue == null || !messageValue.hasProtocolType(eventInfo.getProtocolType())) {
                 throw new IllegalArgumentException(String.format("Invalid message value key: '%s'", key));
             }
@@ -168,8 +171,8 @@ public class ReshaperObj {
         }
 
         public void setMessageValue(String key, String identifier, String value) {
+            EventInfo eventInfo = Dispatcher.getCurrent().getEventInfo();
             MessageValue messageValue = EnumUtils.getEnumIgnoreCase(MessageValue.class, key);
-            EventInfo eventInfo = (EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo");
             if (messageValue == null || !messageValue.hasProtocolType(eventInfo.getProtocolType())) {
                 throw new IllegalArgumentException(String.format("Invalid message value key: '%s'", key));
             }
@@ -184,7 +187,8 @@ public class ReshaperObj {
 
         public String runThen(String thenType, NativeObject thenData) {
             Dispatcher dispatcher = Dispatcher.getCurrent();
-            EventInfo eventInfo = (EventInfo)Dispatcher.getCurrent().getDataBag().get("eventInfo");
+            EventInfo eventInfo = dispatcher.getEventInfo();
+            Workspaces.get().setCurrentWorkspace(eventInfo.getWorkspace());
             String adjustedThenTypeName = StringUtils.prependIfMissing(thenType, "Then");
             Stream<ThenType<?>> supportedThenTypes = Stream.of(
                     ThenType.BuildHttpMessage,
